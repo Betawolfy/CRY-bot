@@ -49,7 +49,8 @@ const getUser = userID => client.users.cache.get(userID)
 // Actual command handler
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
-    const authorizedUsers = ['432116536866766849', '1137286559306096710', '436722027966234634'];
+    //
+    const authorizedUsers = ['729571229060563067', '660122476885573632', '1153268855444078602', '376105044959035392', '537380950204743691', '622068827328610324', '873152278222241834', '432116536866766849', '699529186750234747'];
 
     // const messageInGuild = interaction.guild ? true : false;
     // msgLogger.info(`[${messageInGuild ? "GUILD] [" + interaction.guild.name : "DM"}] [${interaction.channel.name}] [${interaction.user.tag}]: ${interaction.commandName}`);
@@ -157,7 +158,7 @@ client.on('interactionCreate', async interaction => {
 
 
         //betawolfy
-        if (interaction.user.id == "432116536866766849") {
+        if (authorizedUsers.includes(interaction.user.id)) {
             if (!userID) {
                 return interaction.reply(
                     `:warning: - ${interaction.user}, specify the person to whom you want to add the point. .`
@@ -206,7 +207,7 @@ client.on('interactionCreate', async interaction => {
         const user = interaction.guild.members.cache.get(userID); // Récupérer l'utilisateur mentionné
 
         //betawolfy
-        if (interaction.user.id == "432116536866766849") {
+        if (authorizedUsers.includes(interaction.user.id)) {
             if (!userID) {
                 return interaction.reply(
                     `:warning: - ${interaction.user}, specify the person to whom you want to remove the point.`
