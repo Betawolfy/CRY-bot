@@ -1,0 +1,35 @@
+import json
+
+# Load the JSON data
+with open('database.json') as f:
+    data = json.load(f)
+
+# Define the changes to be made
+changes = {
+    "436722027966234634": 3+3+3+3+5+3,
+    "884084595992170497": 3+3+3,
+    "306444195848257536": 3,
+    "376105044959035392": 3,
+    "1137286559306096710": 3+3+3,
+    "935461142602596363": 3,
+    "925039978071867433": 5+3+3,
+    "472400246891347968": 5+3,
+    "918200808800153630": 5+3+3,
+    "978057545354719243": 3+3+3,
+    "306444195848257536": 3+3,
+    "1096891906425901056": 3
+}
+
+# Apply the changes
+for id, pts_to_add in changes.items():
+    if id in data['__VALUE']:
+        old_money = data['__VALUE'][id]['money']
+        data['__VALUE'][id]['money'] += pts_to_add
+        print(f"ID: {id}, Old Money: {old_money}, New Money: {data['__VALUE'][id]['money']}")
+    else:
+        data['__VALUE'][id] = {'money': pts_to_add}
+        print(f"ID: {id}, New Money: {data['__VALUE'][id]['money']}")
+
+# Save the modified data
+with open('database.json', 'w') as f:
+    json.dump(data, f, indent=4)
