@@ -14,20 +14,35 @@ const logger = require("./logger");
 const ecologger = require("./economy");
 const msgLogger = require("./msgLogger");
 const Economy = require('discord-economy-super/mongodb');
-const fs = require('fs').promises;
+const fs = require('fs');
+//const fs = require('fs').promises;
 const cowsay = require('cowsay');
 //const { token } = require('./config.json');
 let chalk;
 const _ = require('lodash');
+const { cli } = require('winston/lib/winston/config');
 
 import('chalk').then((module) => {
     chalk = module.default;
 });
 
+const simplydjs = require('simply-djs')
+
+
+// const client = new Client({
+//     intents: ['GuildMembers', 'GuildMessages', 'Guilds', 'MessageContent', 'GuildMessageReactions', 'DirectMessages', 'GuildPresences']
+// })
 
 const client = new Client({
-    intents: ['GuildMembers', 'GuildMessages', 'Guilds', 'MessageContent', 'DirectMessages']
-})
+    intents: [
+        'Guilds',
+        'GuildMessages',
+        'GuildMessageReactions',
+        'MessageContent',
+        'GuildMembers',
+        'GuildPresences',
+    ],
+});
 
 // Create a new economy
 
@@ -42,7 +57,6 @@ let eco = new Economy({
     workAmount: [50, 200],
     weeklyAmount: 5000
 })
-
 
 const getUser = userID => client.users.cache.get(userID)
 
@@ -148,7 +162,7 @@ client.on('interactionCreate', async interaction => {
         const uptimeMinutes = Math.round(interaction.client.uptime / 60000);
         const websocketPing = interaction.client.ws.ping;
         const roundtripLatency = sent.createdTimestamp - interaction.createdTimestamp;
-        await interaction.editReply(`:ping_pong: Pong!\n:stopwatch: Uptime: ${uptimeMinutes} minutes\n:sparkling_heart: Websocket heartbeat: ${client.ws.status}ms.\n:round_pushpin: Rountrip Latency: ${roundtripLatency}ms`);
+        await interaction.editReply(`:ping_pong: Pong!\n:stopwatch: Uptime: ${uptimeMinutes} minutes\n:sparkling_heart: Websocket heartbeat: ${websocketPing}ms.\n:round_pushpin: Rountrip Latency: ${roundtripLatency}ms`);
     } else if (commandName === 'add') {
         const userID = interaction.options.getUser('user')?.id ||
             interaction.guild.members.cache.find(member => member.user.username == interaction.options.getString('username'))?.id
@@ -317,39 +331,183 @@ client.on('interactionCreate', async interaction => {
             { name: 'geode ambitions - GA', value: 150 },
             { name: 'tidal rehearsals - TR', value: 75 },
             { name: 'seashell trainee - ST', value: 0 }
-          ];
+        ];
 
-          const userPoints = interaction.options.getString('current');
-    const user = interaction.options.getUser('user');
-    const career = interaction.options.getString('career');
-  
-    let roles;
-    if (career === 'normal') {
-        roles = milMedroles;
-    } 
-  
-    const sortedRoles = _.sortBy(roles, 'value');
-    let currentRank = _.findLast(sortedRoles, role => userPoints >= role.value);
-    let nextRank = _.find(sortedRoles, role => userPoints < role.value);
-  
-    let difference;
-    if (nextRank) {
-      difference = nextRank.value - userPoints;
-    }
-  
-    let response;
-  
-    if (!nextRank) {
-        response = `${user ? user.username + ' has' : 'You are at '} the highest rank.`;
-      } else {
-        response = `${user ? user.username + ' needs' : 'You need'} ${difference} more points to reach the next rank: ${nextRank.name}, which requires ${nextRank.value} points.`;
-      }
-  
-    // Renvoyer la réponse à l'utilisateur
-    await interaction.reply({ content: response, ephemeral: false });
-    }
-});
+        const userPoints = interaction.options.getString('current');
+        const user = interaction.options.getUser('user');
+        const career = interaction.options.getString('career');
 
+        let roles;
+        if (career === 'normal') {
+            roles = milMedroles;
+        }
+
+        const sortedRoles = _.sortBy(roles, 'value');
+        let currentRank = _.findLast(sortedRoles, role => userPoints >= role.value);
+        let nextRank = _.find(sortedRoles, role => userPoints < role.value);
+
+        let difference;
+        if (nextRank) {
+            difference = nextRank.value - userPoints;
+        }
+
+        let response;
+
+        if (!nextRank) {
+            response = `${user ? user.username + ' has' : 'You are at '} the highest rank.`;
+        } else {
+            response = `${user ? user.username + ' needs' : 'You need'} ${difference} more points to reach the next rank: ${nextRank.name}, which requires ${nextRank.value} points.`;
+        }
+
+        // Renvoyer la réponse à l'utilisateur
+        await interaction.reply({ content: response, ephemeral: false });
+    } else if (commandName === 'leaderboard') {
+        const rawLeaderboard = await guild.leaderboards.money()
+
+        const leaderboard = rawLeaderboard
+            .filter(lb => !getUser(lb.userID)?.bot)
+            .filter(lb => !!lb.money)
+
+        if (!leaderboard.length) {
+            return interaction.reply(`there are no users in the leaderboard.`)
+        }
+
+        const leadEmbed = new EmbedBuilder()
+            .setColor(0xa9f6f6)
+            .setTitle(`**${interaction.guild.name}** - Point Leaderboard **[${leaderboard.length}]**`)
+            .setAuthor({ name: 'all the server', iconURL: 'https://i.imgur.com/maxsKSF.png', url: 'http://www.betawolfy.xyz' })
+            .setDescription(`${leaderboard
+                .map((lb, index) => `${index + 1} - <@${lb.userID}> - **${lb.money}** point`)
+                .join('\n')}`)
+            .setFooter({ text: 'RE: CRYST4LLUM', iconURL: 'https://i.imgur.com/fsRAPDM.png' });
+
+        interaction.reply({ embeds: [leadEmbed] });
+    } else if (commandName === 'checkifblacklist') {
+        const guild = interaction.guild;
+        const client = interaction.client;
+
+        // Gal, Lampen, Lennox, Camille, Betawolfy, Lotus, Ancharde, Rook
+        if (!authorizedUsers.includes(interaction.user.id)) {
+            interaction.reply({ content: '❌ - You are not allowed to use this command', ephemeral: true });
+            return;
+        }
+
+        const user = interaction.options.getUser('user_id');
+
+        const blacklist = require('./blacklist.json');
+
+        if (user.id in blacklist) {
+            const reason = blacklist[user.id];
+            interaction.reply({ content: `<:0y:1142855575466692789> - The user is blacklisted for the following reason: ${reason}`, ephemeral: false });
+        } else {
+            interaction.reply({ content: '<:0x:1142855597897830603> - The user is not blacklisted', ephemeral: false });
+        }
+    } else if (commandName === 'warn-add') {
+        // Reading the JSON file to get the data
+        let data;
+        try {
+            data = JSON.parse(fs.readFileSync('warns.json', 'utf8'));
+        } catch (err) {
+            data = {};
+        }
+
+        // take the user_id, reason and comment from the interaction options
+        const user = interaction.options.getUser('user_id');
+        const reason = interaction.options.getString('reason');
+        const comment = interaction.options.getString('comment');
+
+        await interaction.deferReply({ ephemeral: false });
+
+        if (user.id in data) {
+            data[user.id].count++;
+        } else {
+            data[user.id] = {
+                count: 1,
+                reasons: [],
+                dates: [] // Add dates array
+            };
+        }
+
+        data[user.id].reasons.push(reason);
+        data[user.id].dates.push(new Date().toISOString()); // Add current date
+
+        // Écrire les données modifiées dans le fichier JSON
+        fs.writeFileSync('warns.json', JSON.stringify(data, null, 2));
+
+        // Pour vérifier le nombre de warns d'un utilisateur
+        const warnData = user.id in data ? data[user.id] : { count: 0, reasons: [], dates: [] };
+        const warnCount = warnData.count;
+        const allWarnReasons = warnData.reasons.join(', ');
+        const allWarnDates = warnData.dates.join(', '); // Get all warn dates
+
+        console.log(`User ${user.id} has ${warnCount} warns. Reasons of the warns: ${allWarnReasons}. Dates of the warns: ${allWarnDates}`);
+
+        // Envoyer un message de confirmation
+
+        if (data[user.id].count > 4) {
+            await interaction.followUp({ content: `? - The user has been warned for the following reason: ${reason}\nUser ${user.username} has more than 4 warns and according to the strike system, they should be kicked.`, ephemeral: false });
+        } else if (data[user.id].count === 4) {
+            await interaction.followUp({ content: `? - The user has been warned for the following reason: ${reason}\nUser ${user.username} has more than 3 warns and should be suspended for a week. They cannot participate in any activities during this time.`, ephemeral: false });
+        } else {
+            if (comment) {
+                await interaction.followUp({ content: `? - The user ${user.username} has been warned for the following reason: ${reason}. Added context: ${comment}`, ephemeral: false });
+            } else {
+                await interaction.followUp({ content: `? - The user ${user.username} has been warned for the following reason: ${reason}`, ephemeral: false });
+            }
+        }
+
+        let message = `You have been warned for the following reason: ${reason}`;
+        if (comment) {
+            message += `. Comment: ${comment}`;
+        }
+
+        user.send(message).catch(console.error);
+    } else if (commandName === 'warn-remove') {
+        const user = interaction.options.getUser('user');
+        const warnIndex = interaction.options.getInteger('warn_index');
+
+        // Lire le fichier JSON
+        let data;
+        try {
+            data = JSON.parse(fs.readFileSync('warns.json', 'utf8'));
+        } catch (err) {
+            data = {};
+        }
+
+        // Supprimer l'avertissement
+        if (user.id in data && data[user.id].count > 0 && warnIndex >= 0 && warnIndex < data[user.id].count) {
+            data[user.id].count--;
+            data[user.id].reasons.splice(warnIndex, 1); // supprime l'avertissement à l'index spécifié
+        } else {
+            await interaction.reply({ content: `Invalid warn index for user ${user.username}.`, ephemeral: true });
+            return;
+        }
+
+        // Écrire les données modifiées dans le fichier JSON
+        fs.writeFileSync('warns.json', JSON.stringify(data, null, 2));
+
+        // Envoyer un message de confirmation
+        await interaction.reply({ content: `Warn number ${warnIndex + 1} has been removed from user ${user.username}. They now have ${data[user.id].count} warns.`, ephemeral: true });
+    } else if (commandName === 'warn-list') {
+        const user = interaction.options.getUser('user');
+
+        // Lire le fichier JSON
+        let data;
+        try {
+            data = JSON.parse(fs.readFileSync('warns.json', 'utf8'));
+        } catch (err) {
+            data = {};
+        }
+
+        // Vérifier si l'utilisateur a des avertissements
+        if (user.id in data && data[user.id].count > 0) {
+            const warnList = data[user.id].reasons.map((reason, index) => `${index + 1}: ${reason} (Date: ${data[user.id].dates[index]})`).join('\n');
+            await interaction.reply({ content: `Warns for user ${user.username}:\n${warnList}`, ephemeral: false });
+        } else {
+            await interaction.reply({ content: `User ${user.username} has no warns.`, ephemeral: false });
+        }
+    }
+})
 // Log all messages
 client.on('messageCreate', message => {
 
@@ -383,49 +541,72 @@ client.on('messageCreate', message => {
 // Accounce new members
 client.on('guildMemberAdd', async member => {
     console.log('A member has joined the server.');
-  
-    if (member.guild.id !== '1083874458198085652') {
-      console.log('The member did not join the specified server.');
-      return;
+
+    if (member.guild.id !== '1142724602057998338') {
+        console.log('The member did not join the specified server.');
+        return;
     }
-  
+
     console.log('The member has joined the specified server.');
-  
+    const blacklist = require('./blacklist.json');
     let isBlacklisted = blacklist.hasOwnProperty(member.user.id);
     let message = `New member: ${member.user.username} (${member.displayName})\nAccount creation date: ${member.user.createdAt.toDateString()}\nIs blacklisted: ${isBlacklisted ? 'Yes' : 'No'}`;
-  
+
     console.log('Message created.');
-  
+
+    // Check if the account is less than a month old
+    // If an account is less than a month old, it might be an alt account
+    // so adding this security message
     if (new Date() - member.user.createdAt < 1000 * 60 * 60 * 24 * 30) {
-      message += '\n:warning: - **This account is less than one month old!**';
-      console.log('The account is less than one month old.');
+        message += '\n:warning: - **This account is less than one month old!** - This might be a alt account.';
+        console.log('The account is less than one month old.');
     }
-      if (new Date() - member.user.createdAt < 1000 * 60 * 60 * 24 * 14) {
-        message += '\n:x: - **This account is less than two weeks old!**';
+    // Check if the account is less than two weeks old
+    // If an account is less than two weeks old, it might be dangerous
+    // so adding this security message
+    if (new Date() - member.user.createdAt < 1000 * 60 * 60 * 24 * 14) {
+        message += '\n<:0x:1142855597897830603> - **This account is less than two weeks old!** - This account might be dangerous!';
         console.log('The account is less than two weeks old.');
-      }
-  
-      const channel = await member.guild.channels.fetch('1199894218856996865');
-      console.log('Channel fetched.');
-  
-      channel.send(message);
-      console.log('Message sent.');
-    });
-  
+    }
+    // Check if the account is less than 3 days old
+    // If an account is less than 3 days old, it might be dangerous
+    // so adding this security message plus might take action???
+    if (new Date() - member.user.createdAt < 1000 * 60 * 60 * 24 * 3) {
+        message += '\n<:catnay:1201449880829317191> - **This account is less than three days old!** - This account might be dangerous!';
+        console.log('The account is less than three days old.');
+    }
+
+
+    const channel = await member.guild.channels.fetch('1211299684123942932');
+    console.log('Channel fetched.');
+
+    channel.send(message);
+    console.log('Message sent.');
+});
+
+//Starboard
+client.on('messageReactionAdd', async (reaction, user) => {
+
+    simplydjs.starboard(reaction, {
+        channelId: '1142804447882399764', // required
+        emoji: '⭐',
+        strict: true,
+    })
+});
 
 // Only once when the bot is ready
 client.on('ready', () => {
-    const status = "CRY OS v0.1a"
+    const status = "CryOS 3"
     var d = new Date();
-  const os = require('os');
+    const os = require('os');
 
-  // Enregistrez l'heure de d but
-  const start = Date.now();
-  // Une fois que le bot a d marr 
-  const end = Date.now();
+    // Enregistrez l'heure de d but
+    const start = Date.now();
+    // Une fois que le bot a d marr 
+    const end = Date.now();
 
-  console.log(`${client.user.tag} is starting...\n\nOS Name: ${os.type()} v${os.release()} \nCopyright (c) 2024, AVU team, inc\n\n Processor: ${os.cpus()[0].model}\n\nMemory: ${Math.round(os.totalmem() / 1024 / 1024)} MB\n Startup time: ${end - start} ms\n current time :` + new Date().toLocaleString() + `\n\nAward Plug and Play BIOS Exension v1.0A\nInictialize Plug and Play Card...\nPnP init Completed\n\nDetecting Primary Master ... ${os.hostname}\nDetecting Primary Slave ... Unbuntu\nDetecting Secondary Master ... Skip\nDetecting Secondary Slave ... none_\n\n\n\n Loading ${client.user.tag}`);
-  console.log(chalk.green(`Ready! Logged in as ${client.user.tag}\nSCurrent activity: ${status} with status: ${status}`));
+    console.log(`${client.user.tag} is starting...\n\nOS Name: ${os.type()} v${os.release()} \nCopyright (c) 2024, AVU team, inc\n\n Processor: ${os.cpus()[0].model}\n\nMemory: ${Math.round(os.totalmem() / 1024 / 1024)} MB\n Startup time: ${end - start} ms\n current time :` + new Date().toLocaleString() + `\n\nAward Plug and Play BIOS Exension v1.0A\nInictialize Plug and Play Card...\nPnP init Completed\n\nDetecting Primary Master ... ${os.hostname}\nDetecting Primary Slave ... Unbuntu\nDetecting Secondary Master ... Skip\nDetecting Secondary Slave ... none_\n\n\n\n Loading ${client.user.tag}`);
+    console.log(chalk.green(`Ready! Logged in as ${client.user.tag}\nSCurrent activity: ${status} with status: ${status}`));
 
 
     client.user.setActivity(`${status}`, {
@@ -435,5 +616,5 @@ client.on('ready', () => {
 })
 
 // Log in to the bot
-require('./server')();
+// require('./server')();
 client.login(config.token)
