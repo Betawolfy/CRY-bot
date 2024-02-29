@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRY - all warnings</title>
+    <style>
+        #warns {
+            background-color: black;
+            color: lime;
+            font-family: monospace;
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+        .warn {
+            border-bottom: 1px solid lime;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="warns"></div>
+
+    <script>
+        fetch('warns.json')
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    const warnsDiv = document.getElementById('warns');
+                    for (let id in data) {
+                        let warn = data[id];
+                        let div = document.createElement('div');
+                        div.className = 'warn';
+                        div.textContent = `ID: ${id}\nCount: ${warn.count}\nReasons: ${warn.reasons.join(', ')}`;
+                        warnsDiv.appendChild(div);
+                    }
+                } else {
+                    console.error('Erreur: warns.json file is empty or could not be loaded');
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+    </script>
+</body>
+</html>
