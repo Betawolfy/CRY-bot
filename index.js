@@ -404,6 +404,11 @@ client.on('interactionCreate', async interaction => {
         }
     } else if (commandName === 'warn-add') {
         // Reading the JSON file to get the data
+        if (!authorizedUsers.includes(interaction.user.id)) {
+            interaction.reply({ content: '❌ - You are not allowed to use this command', ephemeral: false });
+            return;
+        }
+
         let data;
         try {
             data = JSON.parse(fs.readFileSync('warns.json', 'utf8'));
@@ -463,6 +468,11 @@ client.on('interactionCreate', async interaction => {
 
         user.send(message).catch(console.error);
     } else if (commandName === 'warn-remove') {
+        if (!authorizedUsers.includes(interaction.user.id)) {
+            interaction.reply({ content: '❌ - You are not allowed to use this command', ephemeral: false });
+            return;
+        }
+        
         const user = interaction.options.getUser('user');
         const warnIndex = interaction.options.getInteger('warn_index');
 

@@ -2,3 +2,4 @@ node_modules/
 logs/
 config.json
 warns.json
+logMessages.txt
