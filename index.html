@@ -1,43 +1,268 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>CRY - all warnings</title>
     <style>
-        #warns {
-            background-color: black;
-            color: lime;
-            font-family: monospace;
-            padding: 10px;
-            white-space: pre-wrap;
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #000000;
+            color: #00ff00;
+            margin: 0;
+            padding: 0;
         }
-        .warn {
-            border-bottom: 1px solid lime;
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #00ff00;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: glitch 20s infinite;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(2px, 2px);
+                text-shadow: -1px -1px #ff00ff;
+            }
+
+            25% {
+                transform: translate(-2px, -2px);
+                text-shadow: 2px -1px #00ffff;
+            }
+
+            50% {
+                transform: translate(2px, -2px);
+                text-shadow: 1px 1px #ff00ff;
+            }
+
+            75% {
+                transform: translate(-2px, 2px);
+                text-shadow: -2px 1px #00ffff;
+            }
+
+            100% {
+                transform: translate(2px, 2px);
+                text-shadow: -1px -1px #ff00ff;
+            }
+        }
+
+        p {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #00ff00;
+            color: #000000;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            animation: neon 1s infinite;
+        }
+
+        .button:hover {
+            background-color: #ff00ff;
+            color: #ffffff;
+        }
+
+        @keyframes neon {
+            0% {
+                box-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 20px #00ff00;
+            }
+
+            50% {
+                box-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 30px #00ff00;
+            }
+
+            100% {
+                box-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 20px #00ff00;
+            }
+        }
+
+        .terminal {
+            background-color: #000000;
+            padding: 10px;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            overflow: auto;
+            max-height: 500px;
+        }
+
+        .terminal pre {
+            margin: 0;
+            padding: 0;
+            color: #00ff00;
+        }
+
+        h2 {
+            color: #00ff00;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: glitch 30s infinite;
+        }
+
+        form {
+            margin-top: 40px;
+        }
+
+        label {
+            display: block;
+            font-size: 18px;
             margin-bottom: 10px;
-            padding-bottom: 10px;
+        }
+
+        .hack-input {
+            padding: 8px 12px;
+            font-size: 16px;
+            background-color: #000000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        input[type="submit"] {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #00ff00;
+            color: #000000;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            animation: neon 1s infinite;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ff00ff;
+            color: #ffffff;
+        }
+
+        /* Add a black background color to the top navigation */
+        .topnav {
+            background-color: #000000;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* Style the links inside the navigation bar */
+        .topnav a {
+            float: left;
+            color: #00ff00;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        /* Change the color of links on hover */
+        .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        /* Add a color to the active/current link */
+        .topnav a.active {
+            background-color: #00ff00;
+            color: white;
+        }
+
+        .topnav a.unusual {
+            background-color: #050505;
+            color: white;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/gh/johan-perso/discordwhois-library/index.js"></script>
 </head>
-<body>
-    <div id="warns"></div>
 
-    <script>
-        fetch('warns.json')
-            .then(response => response.json())
-            .then(data => {
-                if (data) {
-                    const warnsDiv = document.getElementById('warns');
-                    for (let id in data) {
-                        let warn = data[id];
-                        let div = document.createElement('div');
-                        div.className = 'warn';
-                        div.textContent = `ID: ${id}\nCount: ${warn.count}\nReasons: ${warn.reasons.join(', ')}`;
-                        warnsDiv.appendChild(div);
-                    }
-                } else {
-                    console.error('Erreur: warns.json file is empty or could not be loaded');
-                }
-            })
-            .catch(error => console.error('Erreur:', error));
-    </script>
+<body>
+    <div class="container">
+        <h1>RE: CRYST4LLUM [CRY] BOT</h1>
+        <h2>Yet another custom bot for a regiment</h2>
+
+        <h1>Bot identity:</h1>
+
+        <p>name:</p>
+        <p>Arika "pickle" boeblles</p>
+        <p>official name:</p>
+        <discord-whois toShow="display_name" discord-id="962284148016414740"></discord-whois>
+        <p>Origin:</p>
+        <p>French</p>
+        <p>Lore:</p>
+        <div class="terminal">
+            <p>Still have to create it with the staff ;c;</p>
+        </div>
+        <br><br><br>
+
+        <div style="border: 1px solid red; padding: 10px; background-color: #542323; color: red;">
+            <strong>Warning!</strong>
+            <p>This project is still a WIP. Bugs expected.</p>
+        </div>
+        <br><br><br>
+
+        <div class="terminal">
+            <h3>Features:</h3>
+            <h4>1. Point system</h4>
+            <p>Add point, Remove point and Show point.</p>
+            <p>2. Warn system</p>
+            <p>Add warn, Remove warn and Show warn.</p>
+            <p>3. Custom commands</p>
+            <p>How much point do you need to rank up <br> did you mean meme using AlexFlipnote API</p>
+            </p>
+        </div>
+    </div>
+
+    <h3>Warn:</h3>
+    <div class="terminal">
+        <div id="warns"></div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2021 CRYST4LLUM [CRY] BOT</p>
+        <p>Part of the upcoming AppleBot project</p>
+        <iframe src="https://canary.discord.com/widget?id=1142724602057998338&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+        </div>
+    </footer>
 </body>
+
 </html>
+
+<script>
+    fetch('warns.json')
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                const warnsDiv = document.getElementById('warns');
+                for (let id in data) {
+                    let warn = data[id];
+                    let div = document.createElement('div');
+                    div.className = 'warn';
+                    div.textContent = `ID: ${id}\nCount: ${warn.count}\nReasons: ${warn.reasons.join(', ')}`;
+                    warnsDiv.appendChild(div);
+                }
+            } else {
+                console.error('Erreur: warns.json file is empty or could not be loaded');
+            }
+        })
+        .catch(error => console.error('Erreur:', error));
+</script>

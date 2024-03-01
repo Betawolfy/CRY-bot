@@ -598,7 +598,7 @@ client.on('guildMemberAdd', async member => {
 client.on('messageReactionAdd', async (reaction, user) => {
 
     simplydjs.starboard(reaction, {
-        channelId: '1142804447882399764', // required
+        channelId: '1208013793460748348', // required
         emoji: '⭐',
         strict: true,
     })
