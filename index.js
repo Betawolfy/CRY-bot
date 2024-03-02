@@ -9,7 +9,7 @@ avuOS version 1.0
 */
 
 const config = require('./config')
-const { Client, ActivityType, OAuth2Scopes, EmbedBuilder } = require('discord.js')
+const { Client, ActivityType, OAuth2Scopes, EmbedBuilder, ButtonBuilder, ButtonStyle, } = require('discord.js')
 const logger = require("./logger");
 const ecologger = require("./economy");
 const msgLogger = require("./msgLogger");
@@ -21,6 +21,7 @@ const cowsay = require('cowsay');
 let chalk;
 const _ = require('lodash');
 const { cli } = require('winston/lib/winston/config');
+const pagination = require('discord.js-pagination');
 
 import('chalk').then((module) => {
     chalk = module.default;
@@ -372,16 +373,44 @@ client.on('interactionCreate', async interaction => {
             return interaction.reply(`there are no users in the leaderboard.`)
         }
 
-        const leadEmbed = new EmbedBuilder()
-            .setColor(0xa9f6f6)
-            .setTitle(`**${interaction.guild.name}** - Point Leaderboard **[${leaderboard.length}]**`)
-            .setAuthor({ name: 'all the server', iconURL: 'https://i.imgur.com/maxsKSF.png', url: 'http://www.betawolfy.xyz' })
-            .setDescription(`${leaderboard
-                .map((lb, index) => `${index + 1} - <@${lb.userID}> - **${lb.money}** point`)
-                .join('\n')}`)
-            .setFooter({ text: 'RE: CRYST4LLUM', iconURL: 'https://i.imgur.com/fsRAPDM.png' });
+        // Étape 1: Divisez le tableau en sous-tableaux de 10 éléments chacun
+        const pages = [];
+        for (let i = 0; i < leaderboard.length; i += 10) {
+            pages.push(leaderboard.slice(i, i + 10));
+        }
 
-        interaction.reply({ embeds: [leadEmbed] });
+        // Étape 2: Créez une fonction pour générer un embed pour chaque page
+        function generateEmbed(page, pageIndex, totalPages) {
+            return new EmbedBuilder()
+                .setColor(0xa9f6f6)
+                .setTitle(`**${interaction.guild.name}** - Point Leaderboard **[${page.length}]**`)
+                .setAuthor({ name: 'all the server', iconURL: 'https://i.imgur.com/maxsKSF.png', url: 'http://www.betawolfy.xyz' })
+                .setDescription(`${page
+                    .map((lb, index) => `${index + 1 + pageIndex * 10} - <@${lb.userID}> - **${lb.money}** point`)
+                    .join('\n')}`)
+                .setFooter({ text: `Page ${pageIndex + 1} / ${totalPages} | RE: CRYST4LLUM`, iconURL: 'https://i.imgur.com/fsRAPDM.png' });
+        }
+// Étape 3: Utilisez les réactions pour naviguer entre les pages
+let currentPageIndex = 0;
+interaction.reply({ embeds: [generateEmbed(pages[currentPageIndex], currentPageIndex, pages.length)], fetchReply: true })
+    .then(replyMessage => {
+        if (pages.length > 1) {
+            replyMessage.react('⬅️');
+            replyMessage.react('➡️');
+
+            const filter = (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name) && user.id === interaction.user.id;
+            const collector = replyMessage.createReactionCollector({ filter, time: 60000 });
+
+            collector.on('collect', reaction => {
+                replyMessage.reactions.removeAll().then(async () => {
+                    reaction.emoji.name === '⬅️' ? currentPageIndex-- : currentPageIndex++;
+                    replyMessage.edit({ embeds: [generateEmbed(pages[currentPageIndex], currentPageIndex, pages.length)] });
+                    if (currentPageIndex !== 0) await replyMessage.react('⬅️');
+                    if (currentPageIndex + 1 < pages.length) await replyMessage.react('➡️');
+                });
+            });
+        }
+    });
     } else if (commandName === 'checkifblacklist') {
         const guild = interaction.guild;
         const client = interaction.client;
@@ -472,7 +501,7 @@ client.on('interactionCreate', async interaction => {
             interaction.reply({ content: '❌ - You are not allowed to use this command', ephemeral: false });
             return;
         }
-        
+
         const user = interaction.options.getUser('user');
         const warnIndex = interaction.options.getInteger('warn_index');
 
