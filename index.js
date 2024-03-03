@@ -706,7 +706,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 // Only once when the bot is ready
 client.on('ready', () => {
-    const status = "CryOS 3"
+    const status = "CryOS 3.1"
     var d = new Date();
     const os = require('os');
 
@@ -715,8 +715,8 @@ client.on('ready', () => {
     // Une fois que le bot a d marr 
     const end = Date.now();
 
-    console.log(`${client.user.tag} is starting...\n\nOS Name: ${os.type()} v${os.release()} \nCopyright (c) 2024, AVU team, inc\n\n Processor: ${os.cpus()[0].model}\n\nMemory: ${Math.round(os.totalmem() / 1024 / 1024)} MB\n Startup time: ${end - start} ms\n current time :` + new Date().toLocaleString() + `\n\nAward Plug and Play BIOS Exension v1.0A\nInictialize Plug and Play Card...\nPnP init Completed\n\nDetecting Primary Master ... ${os.hostname}\nDetecting Primary Slave ... Unbuntu\nDetecting Secondary Master ... Skip\nDetecting Secondary Slave ... none_\n\n\n\n Loading ${client.user.tag}`);
-    console.log(chalk.green(`Ready! Logged in as ${client.user.tag}\nSCurrent activity: ${status} with status: ${status}`));
+    console.log(`${client.user.tag} is starting...\n\nOS Name: ${os.type()} v${os.release()} \nCopyright (c) 2024, APLEBOT team, inc\n\nProcessor: ${os.cpus()[0].model}\nMemory test: ${Math.round(os.totalmem() / 1024 / 1024)} M Ok\n\n Startup time: ${end - start} ms\n current time :` + new Date().toLocaleString() + `\n\nAward Plug and Play BIOS Exension v1.0A\nInictialize Plug and Play Card...\nPnP init Completed\n\nDetecting Primary Master ... ${os.userInfo().username}\nDetecting Primary System ... Ubuntu\nDetecting Secondary Master ... Skip\nDetecting Secondary System ... none_\n\nPress <DEL> to enter SETUP, <ALT-F2> to enter PER-SERVER SETTINGS \n\n\n\n Loading and injecting ${status} custom OS in ${client.user.tag}`);
+    console.log(chalk.green(`Ready! Logged in as ${client.user.tag}\nCurrent activity: ${status} with status: ${status}`));
 
 
     client.user.setActivity(`${status}`, {
