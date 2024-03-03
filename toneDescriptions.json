@@ -1,0 +1,73 @@
+{
+    "/j": {
+        "name": "joke",
+        "comment": "when someone use /j, that means that what is just said is a joke and should not be taken seriously.",
+        "example": "I think that pineapple pizza are actually tasteful /j"
+    },
+
+    "/hj": {
+        "name": "half-joke",
+        "comment": "when someone use /hj, that means that what is just said is a half-joke and is kind of a joke but kind of serious",
+        "example": "All british loves tea, true 100% /hj"
+    },
+
+    "/srs": {
+        "name": "serious",
+        "comment": "when someone use /srs, that means that what is just said is serious.",
+        "example": "You should drink more water /srs"
+    },
+
+    "/info": {
+        "name": "info",
+        "comment": "when someone use /info, that means that what is just said is a fact or a important information.",
+        "example": "During waiting time, you have to stay in formal /info"
+    },
+
+    "lh": {
+        "name": "light hearted",
+        "comment": "when someone use lh, that means that what is just said is a light hearted joke and should not be taken seriously.",
+        "example": ""
+    },
+
+    "/gen": {
+        "name": "genuine",
+        "comment": "when someone use /gen, that means that what is just said is genuine.",
+        "example": "Cows makes milk /gen"
+    },
+
+    "/genq": {
+        "name": "genuine question",
+        "comment": "when someone use /genq, that means that what is just said is a genuine question, a legitimate question.",
+        "example": "Why do we have to wear formal during waiting time /genq"
+    },
+
+    "/nf": {
+        "name": "not forcing",
+        "comment": "when someone use /nf, that means that what is just said is not forcing.",
+        "example": "Can someone please be team leader? /nf"
+    },
+
+    "/nbr": {
+        "name": "not being rude",
+        "comment": "when someone use /nbr, that means that what is just said is not being rude.",
+        "example": "You are so bad /nbr"
+    },
+
+    "/ly": {
+        "name": "lyrics",
+        "comment": "when someone use /ly, that means that what is just said is lyrics.",
+        "example": "I'm blue da ba dee da ba daa /ly"
+    },
+
+    "/q": {
+        "name": "quote",
+        "comment": "when someone use /q, that means that what is just said is a quote.",
+        "example": "I have a dream /q"
+    },
+
+    "/nm": {
+        "name": "not mean",
+        "comment": "to indicate you are not actually mad or upset about something.",
+        "example": "I hate you /nm"
+    }
+}

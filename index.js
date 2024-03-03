@@ -145,13 +145,22 @@ client.on('interactionCreate', async interaction => {
                 `\`${prefix}add <user> <amount>\` - add point. \n` +
                 `\`${prefix}remove <user> <amount | all>\` - remove point\n` +
                 `\`${prefix}ping\` - shows latency.\n\n` +
+                //warn commands help
+                `\`${prefix}warn-add <user> <reason> <comment>\` - warn a user\n` +
+                `\`${prefix}warn-remove <user> <warn_index>\` - remove a warn from a user\n` +
+                `\`${prefix}warn-list <user>\` - list all warns of a user\n` +
+                `\`${prefix}checkifblacklist <user>\` - check if a user is blacklisted\n\n` +
 
                 `### usable by all\n\n` +
-                `\`${prefix}help\` - shows this message.\n` +
-                //`\`${prefix}credit\` - Credits all things used for this bot.\n` +
-                `\`${prefix}points [user]\` - show the user points.\n`
-                //`\`${prefix}bal\` - shows your points\n` +
-                //`\`${prefix}leaderboard\` - shows the top\n`
+                `\`${prefix}points <user>\` - show the user points.\n` +
+                `\`${prefix}leaderboard\` - shows the top\n` +
+                `\`${prefix}cowsay <text>\` - make a cow say something\n` +
+                `\`${prefix}didyoumean <top> <bottom>\` - send a meme like google believe you say something wrong\n` +
+                `\`${prefix}howmuch <career> <current> <user>\` - shows how much point left before the next rank.\n` +
+                `\`${prefix}calculator\` - for lazy people who don't want to use their brain\n` +
+                `\`${prefix}achievement <text>\` - generates a "Minecraft Achievement" meme\n` +
+                `\`${prefix}hexcolor <value>\` - give a hex color code and get a preview of it.\n` +
+                `\`${prefix}tonetags <tone>\` - displays a list of tone tags.\n`
             )
             .setFooter({ text: 'RE: CRYST4LLUM [CRY]', iconURL: 'https://i.imgur.com/fsRAPDM.png' });
 
@@ -390,27 +399,27 @@ client.on('interactionCreate', async interaction => {
                     .join('\n')}`)
                 .setFooter({ text: `Page ${pageIndex + 1} / ${totalPages} | RE: CRYST4LLUM`, iconURL: 'https://i.imgur.com/fsRAPDM.png' });
         }
-// Étape 3: Utilisez les réactions pour naviguer entre les pages
-let currentPageIndex = 0;
-interaction.reply({ embeds: [generateEmbed(pages[currentPageIndex], currentPageIndex, pages.length)], fetchReply: true })
-    .then(replyMessage => {
-        if (pages.length > 1) {
-            replyMessage.react('⬅️');
-            replyMessage.react('➡️');
+        // Étape 3: Utilisez les réactions pour naviguer entre les pages
+        let currentPageIndex = 0;
+        interaction.reply({ embeds: [generateEmbed(pages[currentPageIndex], currentPageIndex, pages.length)], fetchReply: true })
+            .then(replyMessage => {
+                if (pages.length > 1) {
+                    replyMessage.react('⬅️');
+                    replyMessage.react('➡️');
 
-            const filter = (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name) && user.id === interaction.user.id;
-            const collector = replyMessage.createReactionCollector({ filter, time: 60000 });
+                    const filter = (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name) && user.id === interaction.user.id;
+                    const collector = replyMessage.createReactionCollector({ filter, time: 60000 });
 
-            collector.on('collect', reaction => {
-                replyMessage.reactions.removeAll().then(async () => {
-                    reaction.emoji.name === '⬅️' ? currentPageIndex-- : currentPageIndex++;
-                    replyMessage.edit({ embeds: [generateEmbed(pages[currentPageIndex], currentPageIndex, pages.length)] });
-                    if (currentPageIndex !== 0) await replyMessage.react('⬅️');
-                    if (currentPageIndex + 1 < pages.length) await replyMessage.react('➡️');
-                });
+                    collector.on('collect', reaction => {
+                        replyMessage.reactions.removeAll().then(async () => {
+                            reaction.emoji.name === '⬅️' ? currentPageIndex-- : currentPageIndex++;
+                            replyMessage.edit({ embeds: [generateEmbed(pages[currentPageIndex], currentPageIndex, pages.length)] });
+                            if (currentPageIndex !== 0) await replyMessage.react('⬅️');
+                            if (currentPageIndex + 1 < pages.length) await replyMessage.react('➡️');
+                        });
+                    });
+                }
             });
-        }
-    });
     } else if (commandName === 'checkifblacklist') {
         const guild = interaction.guild;
         const client = interaction.client;
@@ -545,8 +554,70 @@ interaction.reply({ embeds: [generateEmbed(pages[currentPageIndex], currentPageI
         } else {
             await interaction.reply({ content: `User ${user.username} has no warns.`, ephemeral: false });
         }
-    }
-})
+    } else if (commandName === 'calculator') {
+        simplydjs.calculator(interaction, {
+            // options (optional)
+            embed: {
+                title: "Calculator",
+                color: "#406dbc",
+                footer: {
+                    text: "test footer",
+                    iconURL: "https://i.imgur.com/siVDhIZ.png"
+                }
+            },
+            buttons: {
+                numbers: ButtonStyle.Secondary,
+                symbols: ButtonStyle.Primary,
+                delete: ButtonStyle.Danger
+            }
+        })
+    } else if (commandName === 'achievement') {
+        const text = interaction.options.getString('text');
+
+        const embed = new EmbedBuilder()
+            .setColor('#0099ff')
+            .setTitle('🏆 - Achievement unlocked!')
+            .setImage(`https://api.alexflipnote.dev/achievement?text=${encodeURIComponent(text)}`);
+
+        await interaction.reply({ embeds: [embed] });
+    } else if (commandName === 'hexcolor') {
+        const hexValue = interaction.options.getString('value');
+
+        if (hexValue.length > 6) {
+            interaction.reply('⚠ - According to coding law, Hexadecimal colors only have 6 value, from 000000 (black) to FFFFFF (white). first 2 value is red, second 2 value is green, and last 2 value is blue. So if you want complete choma green, you can use 00FF00. So please, give me a valid hex color code.');
+            return;
+        }
+        else if (hexValue.length > 6) {
+            interaction.reply('⚠ -  According to coding law, Hexadecimal colors only have 6 value, from 000000 (black) to FFFFFF (white). first 2 value is red, second 2 value is green, and last 2 value is blue. So if you want complete choma green, you can use 00FF00. So please, give me a valid hex color code.');
+            return;
+        }
+
+
+        const embed = new EmbedBuilder()
+            .setColor(`#${hexValue}`)
+            .setTitle(`🎨 - the value you give me is ${hexValue}. Here is your color!`)
+            .setImage(`https://api.alexflipnote.dev/colour/image/${encodeURIComponent(hexValue)}`);
+        await interaction.reply({ embeds: [embed] });
+    } else if (commandName === 'tonetags') {
+
+        const toneDescriptions = require('./toneDescriptions.json');
+
+        const tonetags = interaction.options.getString('tone');
+
+        if (toneDescriptions[tonetags]) {
+            const toneNames = (`${tonetags} - ${toneDescriptions[tonetags].name}`);
+            const embed = new EmbedBuilder()
+                .setTitle(toneNames)
+                .setDescription(`${tonetags} means ${toneDescriptions[tonetags].name} - ${toneDescriptions[tonetags].comment}\n exemple : ${toneDescriptions[tonetags].example}`)
+                .setFooter({ text: 'Source: AVU guide' });
+
+            await interaction.reply({ embeds: [embed] });
+        } else {
+            // Gérer le cas où tonetags n'est pas une clé valide dans toneDescriptions
+            await interaction.reply({ content: `No tonetag found. ` });
+        }
+    } 
+});
 // Log all messages
 client.on('messageCreate', message => {
 

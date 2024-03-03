@@ -48,6 +48,11 @@ const commands = [
     new SlashCommandBuilder().setName('warn-add').setDescription('Warn a user').addUserOption(option =>option.setName('user_id').setDescription('the user ID you want to warn').setRequired(true)).addStringOption(option => option.setName('reason').setDescription('the reason for the warn').setRequired(true)).addStringOption(option => option.setName('comment').setDescription('a comment for the warn').setRequired(false)),
     new SlashCommandBuilder().setName('warn-remove').setDescription('Remove a specific warn from a user').addUserOption(option => option.setName('user').setDescription('The user to remove the warn from').setRequired(true)).addIntegerOption(option => option.setName('warn_index').setDescription('The index of the warn to remove').setRequired(true)),
     new SlashCommandBuilder().setName('warn-list').setDescription('Show the warns of a user').addUserOption(option =>option.setName('user').setDescription('the user Dyou want to see the warns').setRequired(true)),
+    new SlashCommandBuilder().setName('calculator').setDescription('for lazy people who don\'t want to use their brain'),
+    new SlashCommandBuilder().setName('achievement').setDescription('Generates a "Minecraft Achievement" meme ').addStringOption(option => option.setName('text').setDescription('The text to display on the achievement').setRequired(true)),
+    new SlashCommandBuilder().setName('hexcolor').setDescription('Give a hex color code and get a preview of it.').addStringOption(option => option.setName('value').setDescription('Your hex color code.').setRequired(true)),
+    new SlashCommandBuilder().setName('tonetags').setDescription('Displays a list of tone tags.').addStringOption(option =>option.setName('tone').setDescription('The tone tag you want to see. don\'t forget the slash.').setRequired(true)),
+    new SlashCommandBuilder().setName('banid').setDescription('Ban a user by their ID').addStringOption(option => option.setName('user_id').setDescription('The user ID you want to ban').setRequired(true)).addStringOption(option => option.setName('reason').setDescription('The reason for the ban').setRequired(true)),
     // Ajoutez ici d'autres commandes
 ].map(command => command.toJSON());
 
