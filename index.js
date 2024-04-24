@@ -18,17 +18,17 @@ const fs = require('fs');
 //const fs = require('fs').promises;
 const cowsay = require('cowsay');
 //const { token } = require('./config.json');
-let chalk;
+
 const _ = require('lodash');
 const { cli } = require('winston/lib/winston/config');
 const pagination = require('discord.js-pagination');
-
+let chalk;
 import('chalk').then((module) => {
     chalk = module.default;
 });
 
 const simplydjs = require('simply-djs')
-
+const axios = require('axios');
 
 // const client = new Client({
 //     intents: ['GuildMembers', 'GuildMessages', 'Guilds', 'MessageContent', 'GuildMessageReactions', 'DirectMessages', 'GuildPresences']
